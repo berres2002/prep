@@ -1,0 +1,3 @@
+# Photometric Recommender Pipeline (prep)
+
+`prep` is a recommendation pipeline for new Type Ia Supernovae and was made to recommend potential triggers for the HST Dust project. It's data sources includes [ANTARES](https://antares.noirlab.edu/), [ALeRCE](https://alerce.science/), and [YSE](https://yse.ucsc.edu/). It has the ability to organize observations, perform as SALT3 fit and submit the information to a Slack channel or generate a csv file. This pipeline is currently in development.
