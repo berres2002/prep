@@ -5,12 +5,12 @@ from astropy.time import Time
 import astropy.units as u
 from antares_client.search import search
 from elasticsearch_dsl import Search
-from bandpassdict import *
+from .bandpassdict import *
 import sncosmo
 from astropy.table import Table
 from astro_ghost.ghostHelperFunctions import getTransientHosts
-from yse import yse_object
-import alerce_api
+# from yse import yse_object
+from . import alerce_api,yse
 import tempfile
 from astropy.coordinates import SkyCoord
 
@@ -41,11 +41,11 @@ class antares_object:
         if 'tns_public_objects' in self.locus.catalogs:
             name = self.locus.catalog_objects['tns_public_objects'][0]['name']
             try:
-                yo=yse_object(name)
+                yo=yse.yse_object(name)
                 if verbose:
                     print('Found in YSE')
                 
-                return yse_object(name)
+                return yse.yse_object(name)
             except:
                 if verbose:
                     print('Not found in YSE')

@@ -1,7 +1,7 @@
 import numpy as np 
 import pandas as pd
 import requests as req
-from auth1 import toku
+from .auth import toku
 
 class build_rec:
     def __init__(self, obj):

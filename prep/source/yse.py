@@ -2,11 +2,11 @@ import requests as req
 import pandas as pd
 import os
 from requests.auth import HTTPBasicAuth
-from auth import *
+from ..auth import *
 from io import StringIO
 import matplotlib.pyplot as plt
 import sncosmo
-from bandpassdict import *
+from .bandpassdict import *
 from astropy.table import Table
 import numpy as np
 from astropy.time import Time

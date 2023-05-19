@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 from astropy.time import Time
 import astropy.units as u
 from alerce.core import Alerce
-from bandpassdict import *
+from .bandpassdict import *
 import sncosmo
 from astropy.table import Table
 from astro_ghost.ghostHelperFunctions import getTransientHosts
 from antares_client.search import get_by_ztf_object_id
-import antares
+from . import antares
 import tempfile
 from astropy.coordinates import SkyCoord
 alerce = Alerce()
