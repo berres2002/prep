@@ -2,7 +2,7 @@ import requests as req
 import pandas as pd
 import os
 from requests.auth import HTTPBasicAuth
-from auth1 import *
+from auth import *
 from io import StringIO
 import matplotlib.pyplot as plt
 import sncosmo
