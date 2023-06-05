@@ -19,10 +19,10 @@ def query_antares(query=None):
     if query ==None:
         query = (
         Search()
-        # .filter("range", **{"properties.num_mag_values": {"gte": 50, "lte": 100}})
-        .filter('range',**{'properties.oldest_alert_observation_time': {"lte":(today-7*u.day).mjd}})
-        #.filter("term", tags="extragalactic")
-        .filter("term", tags="high_amplitude_transient_candidate")
+        .filter("range", **{"properties.num_mag_values": {"gte": 4, "lte": 100}})
+        .filter('range',**{'properties.oldest_alert_observation_time': {"gte":(today-7*u.day).mjd}})
+        # .filter("term", tags="extragalactic")
+        # .filter("term", tags="high_amplitude_transient_candidate")
         .to_dict()
         )
     s = search(query)
