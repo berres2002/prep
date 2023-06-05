@@ -20,7 +20,7 @@ def query_alerce(query=None):
         query = {
         "classifier": "lc_classifier",
         "class_name": "SNIa",
-        'firstmjd': (Time.now()-7*u.day).mjd, # and last 3 days
+        'firstmjd': [(Time.now()-7*u.day).mjd,Time.now().mjd], # and last 3 days
         'page_size':50
         }
     objects = alerce.query_objects(**query)
