@@ -1,10 +1,10 @@
-from .source import *
+from prep.source import *
 from astropy.time import Time
 import tempfile
 import os
 import glob
-from .build_rec import post as pst
-from .build_rec import build_rec as bs
+from prep.build_rec import post as pst
+from prep.build_rec import build_rec as bs
 import time
 
 
@@ -75,7 +75,7 @@ def run(sources=['antares','alerce','yse'],post=True):
     return 0
 
 
-def run_sched(sep= 86400):
+def run_sched(sep= 86400): # 24 hours in seconds
     while True:
         t1 = time.monotonic()
         run()
@@ -83,3 +83,7 @@ def run_sched(sep= 86400):
         td = t2-t1
         time.sleep(sep-td)
     return 0
+
+
+if __name__ == '__main__':
+    run_sched()
