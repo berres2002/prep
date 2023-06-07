@@ -15,10 +15,14 @@ def run(sources=['antares','alerce','yse'],post=True):
     if 'alerce' in sources:
         aq=alerce_api.query_alerce()
         for i in range(aq['oid'].values.size):
-            ao=alerce_api.alerce_object(aq.iloc[i])
-            ao.get_lc()
-            ao.salt3()
-            ps.append(bs(ao).string)
+            try:
+                ao=alerce_api.alerce_object(aq.iloc[i])
+                ao.get_lc()
+                ao.salt3()
+                ps.append(bs(ao).string)
+            except:
+                print(f'failed on {aq.iloc[i].oid}')
+                continue
     
     if 'antares' in sources:
         today = Time.now()
@@ -35,11 +39,15 @@ def run(sources=['antares','alerce','yse'],post=True):
         for locus in aq:
             if j>50:
                 break
-            ao=antares.antares_object(locus)
-            print(ao.name)
-            ao.get_lc()
-            ao.salt3()
-            ps.append(bs(ao).string)
+            try:
+                ao=antares.antares_object(locus)
+                print(ao.name)
+                ao.get_lc()
+                ao.salt3()
+                ps.append(bs(ao).string)
+            except:
+                print(f'failed on {locus.properties["ztf_object_id"]}')
+                
             j+=1
     
     if 'yse' in sources:
@@ -51,10 +59,14 @@ def run(sources=['antares','alerce','yse'],post=True):
         qd.sort_values(by='number_of_detection',ascending=False,inplace=True)
         f4=qd.query('number_of_detection>=5')
         for name in f4.name.values:
-            y1=yse.yse_object(name)
-            y1.get_lc()
-            y1.salt3()
-            ps.append(bs(y1).string)
+            try:
+                y1=yse.yse_object(name)
+                y1.get_lc()
+                y1.salt3()
+                ps.append(bs(y1).string)
+            except:
+                print(f'failed on {name}')
+                continue
 
     if post:
         ps = '\n'.join(ps)
