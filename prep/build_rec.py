@@ -47,3 +47,17 @@ class build_rec:
         p1.raise_for_status()
         if p1.status_code == 200:
             print('Posted to Slack')
+
+def post(string=None):
+        channel = 'D03BK3YKUQN'
+        if string is None:
+            raise ValueError('No string provided')
+        p1=req.post('https://slack.com/api/chat.postMessage',
+                 params={'channel':channel,
+                         'text':string,
+                         'mrkdwn':'true',
+                         'parse':'none'},
+                         headers={'Authorization': f'Bearer {toku}'})
+        p1.raise_for_status()
+        if p1.status_code == 200:
+            print('Posted to Slack')
