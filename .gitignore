@@ -161,3 +161,4 @@ cython_debug/
 
 # Do not track auth file bc passwords
 *auth.py
+secret.env

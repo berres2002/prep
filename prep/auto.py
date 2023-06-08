@@ -86,4 +86,10 @@ def run_sched(sep= 86400): # 24 hours in seconds
 
 
 if __name__ == '__main__':
+    print('running')
     run_sched()
+
+def main():
+    print('running')
+    run_sched()
+    return 0
