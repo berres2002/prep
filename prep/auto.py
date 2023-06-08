@@ -20,8 +20,8 @@ def run(sources=['antares','alerce','yse'],post=True):
                 ao.get_lc()
                 ao.salt3()
                 ps.append(bs(ao).string)
-            except:
-                print(f'failed on {aq.iloc[i].oid}')
+            except Exception as e:
+                print(f'failed on {aq.iloc[i].oid}\n{e}')
                 continue
     
     if 'antares' in sources:
@@ -45,8 +45,8 @@ def run(sources=['antares','alerce','yse'],post=True):
                 ao.get_lc()
                 ao.salt3()
                 ps.append(bs(ao).string)
-            except:
-                print(f'failed on {locus.properties["ztf_object_id"]}')
+            except Exception as e:
+                print(f'failed on {locus.properties["ztf_object_id"]}'+'\n'+str(e))
                 
             j+=1
     
@@ -64,8 +64,8 @@ def run(sources=['antares','alerce','yse'],post=True):
                 y1.get_lc()
                 y1.salt3()
                 ps.append(bs(y1).string)
-            except:
-                print(f'failed on {name}')
+            except Exception as e:
+                print(f'failed on {name}\n{e}')
                 continue
 
     if post:
@@ -81,7 +81,7 @@ def run_sched(sep= 86400): # 24 hours in seconds
         run()
         t2 = time.monotonic()
         td = t2-t1
-        time.sleep(sep-td)
+        time.sleep(sep-td) # calculation offset so it runs at the same time every day
     return 0
 
 
