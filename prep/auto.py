@@ -57,7 +57,7 @@ def run(sources=['antares','alerce','yse'],post=True):
             gp = glob.glob(os.path.join(td,'YSE_*.csv'))[0]
             qd=pd.read_csv(gp,skiprows=1,names=['name','classification','first_detection','latest_detection','number_of_detection','group_name'])
         qd.sort_values(by='number_of_detection',ascending=False,inplace=True)
-        f4=qd.query('number_of_detection>=5')
+        f4=qd.query('number_of_detection>=4')
         for name in f4.name.values:
             try:
                 y1=yse.yse_object(name)

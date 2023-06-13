@@ -34,8 +34,7 @@ class build_rec:
         df1['url'] = self.url
         return df1
     
-    def post(self,string=None):
-        channel = 'D03BK3YKUQN'
+    def post(self,string=None,channel='D03BK3YKUQN'):
         if string is None:
             string = self.string
         p1=req.post('https://slack.com/api/chat.postMessage',
@@ -48,8 +47,7 @@ class build_rec:
         if p1.status_code == 200:
             print('Posted to Slack')
 
-def post(string=None):
-        channel = 'D03BK3YKUQN'
+def post(string=None, channel='D03BK3YKUQN'):
         if string is None:
             raise ValueError('No string provided')
         p1=req.post('https://slack.com/api/chat.postMessage',
