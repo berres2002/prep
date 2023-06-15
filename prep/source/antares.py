@@ -15,6 +15,19 @@ import tempfile
 from astropy.coordinates import SkyCoord
 
 def query_antares(query=None):
+    '''
+    Queries ANTARES for new objects. See https://nsf-noirlab.gitlab.io/csdc/antares/client/tutorial/searching.html#advanced-searches for information on how to construct a query.
+
+    Parameters
+    ----------
+    query : elasticsearch_dsl.search.Search, optional
+        The query to be sent to ANTARES. The default is None, which will return all objects with at least 4 detections and at least one detection in the last 7 days.
+
+    Returns
+    -------
+    s : Iterator
+        An iterator over the result loci of the query.
+    '''
     today = Time.now()
     if query ==None:
         query = (
@@ -31,6 +44,30 @@ def query_antares(query=None):
 class antares_object:
 
     def __init__(self,locus):
+        '''
+        Instantiates an antares object from an antares Locus object.
+        See https://nsf-noirlab.gitlab.io/csdc/antares/client/index.html for information on the antares client.
+
+        Parameters
+        ----------
+        locus : antares_client.models.Locus
+            An antares Locus object.
+        
+        Attributes
+        ----------
+        locus : antares_client.models.Locus
+            An antares Locus object.
+        lc : DataFrame
+            The lightcurve of the object.
+        name : str
+            The ZTF Object ID of the object.
+        ra : float
+            The right ascension of the object.
+        dec : float
+            The declination of the object.
+        url : str
+            The URL of the object in the antares database.
+        '''
         self.locus =locus
         self.lc = self.locus.lightcurve
         self.name =self.locus.properties['ztf_object_id']
@@ -38,6 +75,19 @@ class antares_object:
         self.url = f"https://antares.noirlab.edu/loci/{self.locus.locus_id}"
     
     def check_yse(self,verbose=True):
+        '''
+        Cross-checks to see if object exists in YSE. Checks if the object is in the TNS public catalog, and if so, checks if it is in the YSE database.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            Whether to print out whether the object was found in YSE. The default is True.
+        
+        Returns
+        -------
+        yse_object : prep.source.yse.yse_object
+            The YSE object if it exists, or None if it does not.
+        '''
         if 'tns_public_objects' in self.locus.catalogs:
             name = self.locus.catalog_objects['tns_public_objects'][0]['name']
             try:
@@ -55,6 +105,19 @@ class antares_object:
             return
         
     def check_alerce(self,verbose=False):
+        '''
+        Cross-checks to see if object exists in ALeRCE. Uses the ZTF Object ID to query the ALeRCE database.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            Whether to print out whether the object was found in ALeRCE. The default is False.
+
+        Returns
+        -------
+        alerce_object : prep.source.alerce_api.alerce_object
+            The ALeRCE object if it exists, or None if it does not.
+        '''
         q1 = alerce_api.query_alerce({'oid':self.name,'format':'pandas'})
         if q1.empty:
             if verbose:
@@ -66,10 +129,30 @@ class antares_object:
             return alerce_api.alerce_object(q1.iloc[0])
     
     def get_lc(self):
-        
+        '''
+        Gets the lightcurve of the object. Redundant with the lc attribute. Made for consistency with other object classes.
+
+        Returns
+        -------
+        lc : DataFrame
+            The lightcurve of the object.
+        '''
         return self.lc
     
     def salt3(self,plot=False):
+        '''
+        Fits a SALT3 model to the lightcurve of the object. Uses the sncosmo package.
+
+        Parameters
+        ----------
+        plot : bool, optional
+            Whether to plot the lightcurve and the fit. The default is False.
+        
+        Attributes Generated
+        --------------------
+        salt_params : dict
+            The parameters of the fit and errors.
+        '''
         self.lcm = self.lc[~self.lc[['ant_mjd','ant_mag','ant_magerr']].isna().any(axis=1)]
         # Need to figure out ztf passbands
         # ztf  - g and r
@@ -159,11 +242,14 @@ class antares_object:
             plt.grid()
             plt.legend(loc=0)
         
-        return self.salt_params
+        # return self.salt_params
     
 
 
     def plot_lc(self):
+        '''
+        Plots the light curve data.
+        '''
         plt.title(self.name)
         plt.xlabel('MJD')
         plt.ylabel('Magnitude')
@@ -171,6 +257,14 @@ class antares_object:
         plt.gca().invert_yaxis()
 
     def run_ghost(self):
+        '''
+        Runs the ghost code to find potential host galaxies.
+
+        Returns
+        -------
+        ghost_info : DataFrame
+            DataFrame containing the host galaxy information.
+        '''
         snCoord = SkyCoord(self.ra,self.dec,unit='deg',frame='icrs')
         with tempfile.TemporaryDirectory() as tmp:
             ghost_info = getTransientHosts(snCoord=snCoord, verbose=0,starcut='normal',savepath=tmp,ascentMatch=True)

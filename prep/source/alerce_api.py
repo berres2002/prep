@@ -15,6 +15,19 @@ from astropy.coordinates import SkyCoord
 alerce = Alerce()
 
 def query_alerce(query=None):
+    '''
+    Queries ALeRCE for SNe Ia, Ib/c, and II in the last 7 days. Uses lc_classifier to find new objects.
+
+    Parameters
+    ----------
+    query : dict, optional
+        A dictionary of query parameters. The default is None. See https://alerce.readthedocs.io/en/latest/tutorials/ztf_api.html#query-objects for more information on query parameters.
+    
+    Returns
+    -------
+    objects : pd.DataFrame
+        A DataFrame of the query results.
+    '''
     sne =['SNIa','SNIbc','SNII']
     if query is None:
         query = {
@@ -29,6 +42,27 @@ def query_alerce(query=None):
 class alerce_object:
 
     def __init__(self,aobject):
+        '''
+        Initializes a alerce_object from a row of the alerce query.
+
+        Parameters
+        ----------
+        aobject : pd.Series
+            A row from the alerce query DataFrame.
+        
+        Attributes
+        ----------
+        oid : str
+            The object id.
+        name : str
+            The object name same as oid.
+        ra : float
+            The mean right ascension of the object.
+        dec : float
+            The mean declination of the object.
+        url : str
+            The url of the object in alerce.
+        '''
         self.oid =aobject.oid
         self.name = self.oid
         self.ra, self.dec= aobject.meanra,aobject.meandec
@@ -36,6 +70,19 @@ class alerce_object:
 
 
     def check_antares(self,verbose=False):
+        '''
+        Cross-checks if the object is in Antares. Uses ZTF object id to query ANTARES.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            If True, prints if the object is found in Antares. The default is False.
+
+        Returns
+        -------
+        antares_object : prep.source.antares.antares_object or None
+            Returns the antares_object if found in Antares, else None.
+        '''
         cat = get_by_ztf_object_id(self.oid)
         if cat is None:
             return 
@@ -45,13 +92,42 @@ class alerce_object:
             return antares.antares_object(cat)
         
     def check_yse(self,verbose=False):
+        '''
+        Cross-checks if the object is in YSE. Uses Antares object to query YSE. Very hacky but alerce does not provide TNS names.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            If True, prints if the object is found in YSE. The default is False.
+
+        Returns
+        -------
+        yse_object : prep.source.yse.yse_object or None
+            Returns the yse_object if found in YSE, else None.
+        '''
         return self.check_antares(verbose=verbose).check_yse(verbose=verbose)
     
     def get_probabilities(self):
+        '''
+        Get classifier probabilities from alerce for object.
+
+        Returns
+        -------
+        probs : json dict
+            The probabilities for each classifier from alerce.
+        '''
         self.probs = alerce.query_probabilities(self.oid,format="json")
         return self.probs
     
     def get_top_class(self): 
+        '''
+        Get the top class from the classifier probabilities.
+
+        Returns
+        -------
+        top_class : tuple
+            The top class and probability.
+        '''
         # From Patrick Aleo
         try:
             output = self.probs
@@ -75,10 +151,21 @@ class alerce_object:
         return (top_class['class_name'],top_class['probability']) if top_class is not None else ("Not_classified",None)
         
     def get_lc(self):
+        '''
+        Gets the light curve from alerce.
+
+        Returns
+        -------
+        lc : pd.DataFrame
+            The light curve from alerce. Real detections only.
+        '''
         self.lc = alerce.query_detections(self.oid,format="pandas").query('has_stamp==True')
         return self.lc
     
     def plot_lc(self):
+        '''
+        Plot the light curve from alerce.
+        '''
         try:
             self.lc
         except:
@@ -91,6 +178,19 @@ class alerce_object:
         plt.show()
     
     def salt3(self,plot=False):
+        '''
+        Run salt3 on the light curve from alerce. Need to run get_lc first.
+
+        Parameters
+        ----------
+        plot : bool, optional
+            If True, plots the light curve and the salt3 fit. The default is False.
+
+        Returns
+        -------
+        salt_params : dict
+            The salt3 parameters and errors.
+        '''
         try:
             self.lc
         except:
@@ -188,6 +288,14 @@ class alerce_object:
         return self.salt_params
     
     def run_ghost(self):
+        '''
+        Runs GHOST on the object to find potential host galaxies.
+
+        Returns
+        -------
+        ghost_info : pd.DataFrame
+            Dataframe with the information of the potential host galaxies.
+        '''
         snCoord = SkyCoord(self.ra,self.dec,unit='deg',frame='icrs')
         with tempfile.TemporaryDirectory() as tmp:
             ghost_info = getTransientHosts(snCoord=snCoord, verbose=0,starcut='normal',savepath=tmp,ascentMatch=True)
