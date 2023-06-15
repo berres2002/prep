@@ -8,3 +8,4 @@ antares_client
 astro_ghost
 matplotlib
 elasticsearch_dsl
+iminuit

@@ -70,7 +70,7 @@ def run(sources=['antares','alerce','yse'],post=True):
 
     if post:
         ps = '\n'.join(ps)
-        pst(ps)
+        pst(ps,channel='D041VTL9LRY')
 
     return 0
 
