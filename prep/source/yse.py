@@ -31,10 +31,26 @@ def young_and_fast(path=None):
     q1=req.get('https://ziggy.ucolick.org/yse/explorer/254/download',auth=HTTPBasicAuth(login, password))
     q1.raise_for_status()
     qt1=q1.text
+    qt1=qt1.strip('ï»¿')
     time =today.to_value('datetime').strftime('%Y%m%d_%H%M%S')
     if path is None:
         path = os.getcwd()
     p1 = os.path.join(path,f'YSE_{time}.csv')
+    with open(p1,'w') as f:
+        f.write(qt1)
+        f.close()
+    return 0
+
+def possible_hst(path=None):
+    today = Time.now()
+    q1=req.get('https://ziggy.ucolick.org/yse/explorer/364/download',auth=HTTPBasicAuth(login, password))
+    q1.raise_for_status()
+    qt1=q1.text
+    qt1=qt1.strip('ï»¿')
+    time =today.to_value('datetime').strftime('%Y%m%d_%H%M%S')
+    if path is None:
+        path = os.getcwd()
+    p1 = os.path.join(path,f'YSE_HST_DUST_{time}.csv')
     with open(p1,'w') as f:
         f.write(qt1)
         f.close()
