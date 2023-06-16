@@ -258,7 +258,7 @@ class antares_object:
 
     def run_ghost(self):
         '''
-        Runs the ghost code to find potential host galaxies.
+        Runs GHOST for the object and returns the host galaxy information.
 
         Returns
         -------
