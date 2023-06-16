@@ -7,5 +7,6 @@ setup(
    use_scm_version={
       "write_to": "prep/version.py",
       "write_to_template": "__version__ = '{version}'",
-    }
+    },
+    entry_points=dict(console_scripts=['auto-prep=prep.auto:main'])
 )

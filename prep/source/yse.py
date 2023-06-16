@@ -19,10 +19,19 @@ from astropy.coordinates import SkyCoord
 # today = Time.now()
 
 def young_and_fast(path=None):
+    '''
+    Queries YSE "young and fast" SQL query and writes the results to a csv file
+
+    Parameters
+    ----------
+    path : str, optional
+        Path to write csv file to. The default is None which will write to current working directory.
+    '''
     today = Time.now()
     q1=req.get('https://ziggy.ucolick.org/yse/explorer/254/download',auth=HTTPBasicAuth(login, password))
     q1.raise_for_status()
     qt1=q1.text
+    qt1=qt1.strip('ï»¿')
     time =today.to_value('datetime').strftime('%Y%m%d_%H%M%S')
     if path is None:
         path = os.getcwd()
@@ -32,9 +41,36 @@ def young_and_fast(path=None):
         f.close()
     return 0
 
+def possible_hst(path=None):
+    today = Time.now()
+    q1=req.get('https://ziggy.ucolick.org/yse/explorer/364/download',auth=HTTPBasicAuth(login, password))
+    q1.raise_for_status()
+    qt1=q1.text
+    qt1=qt1.strip('ï»¿')
+    time =today.to_value('datetime').strftime('%Y%m%d_%H%M%S')
+    if path is None:
+        path = os.getcwd()
+    p1 = os.path.join(path,f'YSE_HST_DUST_{time}.csv')
+    with open(p1,'w') as f:
+        f.write(qt1)
+        f.close()
+    return 0
+
 class yse_object:
 
     def __init__(self,name,data=None):
+        '''
+        yse object class. Meant to read in YSE SN Object name and return a class with the following attributes:
+        name: YSE SN Object name
+        url: URL to YSE-PZ page
+        ra: RA of object
+        dec: Dec of object
+
+        Parameters
+        ----------
+        name : str, required
+            YSE SN Object name in the format "20xxabc" but can have SN in front
+        '''
         # Name format should be "20xxabc" but can have SN in front
         self.name =name
         if 'SN' in self.name:
@@ -51,12 +87,27 @@ class yse_object:
              self.url = self._gen_YSE_PZ_url()
 
     def query_yse_object(self):
+        '''
+        Queries YSE API for single object and returns its JSON entry
+
+        Returns
+        -------
+        r1 : dict
+            JSON entry for object from YSE
+        '''
         r1 = req.get(f'https://ziggy.ucolick.org/yse/api/transients/?name={self.ns}',auth=HTTPBasicAuth(login, password)).json()['results']
         
         return r1
 
 
     def check_pz(self):
+        '''
+        Checks if object is on YSE Servers. Also generates RA and Dec attributes.
+
+        Returns
+        -------
+        bool: True if object is on YSE Servers, False if not
+        '''
         r1 = req.get(f'https://ziggy.ucolick.org/yse/api/transients/?name={self.ns}',auth=HTTPBasicAuth(login, password)).json()['results']
         if r1 == []:
             return False
@@ -73,7 +124,14 @@ class yse_object:
         return url
     
     def get_lc(self):
+        '''
+        Gets Light Curve Data from YSE-PZ "download photometry" button. 
         
+        Generates the following attributes:
+        header: Header information from YSE-PZ
+        lc_data: Pandas DataFrame of all data from YSE-PZ
+        pdata: Pandas DataFrame of all data from YSE-PZ with quality cuts applied
+        '''
         r=req.get(f'https://ziggy.ucolick.org/yse/download_photometry/{self.ns}/',auth=HTTPBasicAuth(login, password))
         r.raise_for_status()
         li=r.text.split('\n')
@@ -98,6 +156,17 @@ class yse_object:
         self.pdata=pd.read_csv(StringIO('\n'.join(li)),sep='\s+',comment='#').query(qstring).dropna()
     
     def salt3(self,plot=False):
+        '''
+        Conducts a SALT3 fit to the light curve data. Uses the sncosmo package. Requires get_lc to be run first.
+
+        Generates the following attributes:
+        salt_params: SALT3 fit parameters and errors, given as a dictionary.
+
+        Parameters
+        ----------
+        plot : bool, optional
+            If True, plots the SALT3 fit with photometry data. The default is False.
+        '''
         try:
             self.pdata
         except:
@@ -220,6 +289,14 @@ class yse_object:
     
 
     def run_ghost(self):
+        '''
+        Runs GHOST host galaxy identifier on the object.
+
+        Returns
+        -------
+        ghost_info : pd.DataFrame
+            Info of potential host galaxy.
+        '''
         snCoord = SkyCoord(self.ra,self.dec,unit='deg',frame='icrs')
         with tempfile.TemporaryDirectory() as tmp:
             ghost_info = getTransientHosts(snCoord=snCoord, verbose=0,starcut='normal',savepath=tmp,ascentMatch=True)
