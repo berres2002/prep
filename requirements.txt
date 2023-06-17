@@ -9,3 +9,4 @@ astro_ghost
 matplotlib
 elasticsearch_dsl
 iminuit
+opencv-python-headless

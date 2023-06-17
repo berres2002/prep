@@ -60,16 +60,24 @@ class yse_object:
 
     def __init__(self,name,data=None):
         '''
-        yse object class. Meant to read in YSE SN Object name and return a class with the following attributes:
-        name: YSE SN Object name
-        url: URL to YSE-PZ page
-        ra: RA of object
-        dec: Dec of object
+        YSE object class. Meant to read in YSE SN Object name.
+        
 
         Parameters
         ----------
         name : str, required
             YSE SN Object name in the format "20xxabc" but can have SN in front
+
+        Attributes
+        ----------
+        name : str
+            YSE SN Object name in the format "20xxabc" but can have SN in front
+        self.ra : float
+            Right Ascension of object in degrees
+        self.dec : float
+            Declination of object in degrees
+        self.url : str
+            URL to YSE-PZ page for object
         '''
         # Name format should be "20xxabc" but can have SN in front
         self.name =name
