@@ -338,7 +338,7 @@ class yse_object:
         '''
         snCoord = SkyCoord(self.ra,self.dec,unit='deg',frame='icrs')
         with tempfile.TemporaryDirectory() as tmp:
-            ghost_info = getTransientHosts(snCoord=snCoord, verbose=0,starcut='normal',savepath=tmp,ascentMatch=True)
+            ghost_info = getTransientHosts(snCoord=[snCoord], verbose=0,starcut='normal',savepath=tmp,ascentMatch=True)
         return ghost_info
 
     def parsnip(self):
