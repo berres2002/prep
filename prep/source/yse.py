@@ -56,6 +56,37 @@ def possible_hst(path=None):
         f.close()
     return 0
 
+def query_yse(query_num,path=None,fn=None):
+    '''
+    Queries any YSE SQL query and writes the results to a csv file. The query needs to return at least the name of the object and the time of detection.
+
+    Parameters
+    ----------
+    query_num : str, required
+        YSE SQL query number. Can be found at https://ziggy.ucolick.org/yse/explorer/. For example, the "young and fast" query is 254.
+    path : str, optional
+        Path to write csv file to. The default is None which will write to current working directory.
+    fn : str, optional
+        Filename to write csv file to. The default is None which will write to current working directory with a filename of the form "YSE_{query_num}_{time}.csv".
+    '''
+    
+    q1=req.get(f'https://ziggy.ucolick.org/yse/explorer/{query_num}/download',auth=HTTPBasicAuth(login, password))
+    q1.raise_for_status()
+    qt1=q1.text
+    qt1=qt1.strip('ï»¿')
+    if path is None:
+        path = os.getcwd()
+    if fn is None:
+        today = Time.now()
+        time =today.to_value('datetime').strftime('%Y%m%d_%H%M%S')
+        p1 = os.path.join(path,f'YSE_{query_num}_{time}.csv')
+    else:
+        p1 = os.path.join(path,fn)
+    with open(p1,'w') as f:
+        f.write(qt1)
+        f.close()
+    return 0
+
 class yse_object:
 
     def __init__(self,name,data=None):
