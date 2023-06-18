@@ -13,7 +13,7 @@ class build_rec:
         obj : prep.source object
             Object to build recommendation for. Needs to have a name, ra, dec, url, and salt_params attributes.
         
-        Parameters
+        Attributes
         ----------
         string : str
             String to post to slack. If None, will build a string from the object.

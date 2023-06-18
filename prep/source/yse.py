@@ -42,6 +42,14 @@ def young_and_fast(path=None):
     return 0
 
 def possible_hst(path=None):
+    '''
+    Queries YSE "Possible HST Cycle 30 Targets" SQL query and writes the results to a csv file
+
+    Parameters
+    ----------
+    path : str, optional
+        Path to write csv file to. The default is None which will write to current working directory.
+    '''
     today = Time.now()
     q1=req.get('https://ziggy.ucolick.org/yse/explorer/364/download',auth=HTTPBasicAuth(login, password))
     q1.raise_for_status()
