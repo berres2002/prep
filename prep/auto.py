@@ -7,19 +7,40 @@ from prep.build_rec import post as pst
 from prep.build_rec import build_rec as bs
 import time
 
+def check_post(name,lines):
+    if lines is None:
+        return False
+    
+    if name in lines:
+        print(f'{name} already posted!')
+        return True
+    else:
+        return False
 
 
-
-def run(sources=['antares','alerce','yse_yaf'],post=True):
+def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names.txt'):
+    if os.path.exists(name_file):
+        print(f'using existing posted names file: {name_file}') # checking if the names file exists, if it doesn't, will not check for duplicates and will not write new names to the file
+        with open(name_file,'r') as f:
+            lines = f.read().split('\n')
+            f.close()
+    else:
+        print(f'WARNING: posted names file not found, will not check for duplicates')
+        lines = None
     ps= []
+    names = []
     if 'alerce' in sources:
         aq=alerce_api.query_alerce()
         for i in range(aq['oid'].values.size):
             try:
                 ao=alerce_api.alerce_object(aq.iloc[i])
+                if check_post(ao.name,lines):
+                    continue
                 ao.get_lc()
                 ao.salt3()
-                ps.append(bs(ao).string)
+                bss =bs(ao)
+                names.append(bss.name)
+                ps.append(bss.string)
             except Exception as e:
                 print(f'failed on {aq.iloc[i].oid}\n{e}')
                 continue
@@ -41,10 +62,14 @@ def run(sources=['antares','alerce','yse_yaf'],post=True):
                 break
             try:
                 ao=antares.antares_object(locus)
-                print(ao.name)
+                # print(ao.name)
+                if check_post(ao.name,lines):
+                    continue
                 ao.get_lc()
                 ao.salt3()
-                ps.append(bs(ao).string)
+                bss = bs(ao)
+                names.append(bss.name)
+                ps.append(bss.string)
             except Exception as e:
                 print(f'failed on {locus.properties["ztf_object_id"]}'+'\n'+str(e))
                 
@@ -61,9 +86,13 @@ def run(sources=['antares','alerce','yse_yaf'],post=True):
         for name in f4.name.values:
             try:
                 y1=yse.yse_object(name)
+                if check_post(y1.name,lines):
+                    continue
                 y1.get_lc()
                 y1.salt3()
-                ps.append(bs(y1).string)
+                bss = bs(y1)
+                names.append(bss.name)
+                ps.append(bss.string)
             except Exception as e:
                 print(f'failed on {name}\n{e}')
                 continue
@@ -77,14 +106,25 @@ def run(sources=['antares','alerce','yse_yaf'],post=True):
         for name in f4.name.values:
             try:
                 y1=yse.yse_object(name)
+                if check_post(y1.name,lines):
+                    continue
                 y1.get_lc()
                 y1.salt3()
-                ps.append(bs(y1).string)
+                bss = bs(y1)
+                names.append(bss.name)
+                ps.append(bss.string)
             except Exception as e:
                 print(f'failed on {name}\n{e}')
                 continue
 
     if post:
+        if lines is None: # if the file doesn't exist, don't write to it
+            pass
+        else:
+            bnames = '\n'.join(names)
+            with open(name_file,'a') as f:
+                f.write(bnames)
+                f.close()
         ps = '\n'.join(ps)
         pst(ps,channel='C05E9AJ18HG')
 
