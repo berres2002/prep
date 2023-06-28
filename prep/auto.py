@@ -10,7 +10,7 @@ import time
 
 
 
-def run(sources=['antares','alerce','yse'],post=True):
+def run(sources=['antares','alerce','yse_yaf'],post=True):
     ps= []
     if 'alerce' in sources:
         aq=alerce_api.query_alerce()
@@ -50,7 +50,7 @@ def run(sources=['antares','alerce','yse'],post=True):
                 
             j+=1
     
-    if 'yse' in sources:
+    if 'yse_yaf' in sources:
         # maybe introduce temp file to save csv
         with tempfile.TemporaryDirectory() as td:
             yq = yse.young_and_fast(td)
@@ -67,10 +67,26 @@ def run(sources=['antares','alerce','yse'],post=True):
             except Exception as e:
                 print(f'failed on {name}\n{e}')
                 continue
+    if 'yse_hst' in sources:
+        with tempfile.TemporaryDirectory() as td:
+            yq = yse.possible_hst(td)
+            gp = glob.glob(os.path.join(td,'YSE_*.csv'))[0]
+            qd=pd.read_csv(gp)
+        qd.sort_values(by='disc_date',ascending=False,inplace=True)
+        f4=qd
+        for name in f4.name.values:
+            try:
+                y1=yse.yse_object(name)
+                y1.get_lc()
+                y1.salt3()
+                ps.append(bs(y1).string)
+            except Exception as e:
+                print(f'failed on {name}\n{e}')
+                continue
 
     if post:
         ps = '\n'.join(ps)
-        pst(ps,channel='D041VTL9LRY')
+        pst(ps,channel='C05E9AJ18HG')
 
     return 0
 

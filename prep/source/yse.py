@@ -200,7 +200,8 @@ class yse_object:
         snr_cut = 3
         qstring = f' FLT != "Unknown"  & MAGERR<{snr_cut}'
         self.lc_data=pd.read_csv(StringIO('\n'.join(li)),sep='\s+',comment='#')
-        self.pdata=pd.read_csv(StringIO('\n'.join(li)),sep='\s+',comment='#').query(qstring).dropna()
+        pdata=pd.read_csv(StringIO('\n'.join(li)),sep='\s+',comment='#').query(qstring).dropna()
+        self.pdata = pdata.loc[pdata['FLUXCAL']/pdata['FLUXCALERR'] >=3]
     
     def salt3(self,plot=False):
         '''
