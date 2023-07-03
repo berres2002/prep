@@ -86,11 +86,15 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
         for name in f4.name.values:
             try:
                 y1=yse.yse_object(name)
+                if y1.in_field:
+                    note = f'Found in YSE fields: {", ".join(y1.fields)}'
+                else:
+                    note = None
                 if check_post(y1.name,lines):
                     continue
                 y1.get_lc()
                 y1.salt3()
-                bss = bs(y1)
+                bss = bs(y1,note=note)
                 names.append(bss.name)
                 ps.append(bss.string)
             except Exception as e:
@@ -106,11 +110,15 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
         for name in f4.name.values:
             try:
                 y1=yse.yse_object(name)
+                if y1.in_field:
+                    note = f'Found in YSE fields: {", ".join(y1.fields)}'
+                else:
+                    note =None
                 if check_post(y1.name,lines):
                     continue
                 y1.get_lc()
                 y1.salt3()
-                bss = bs(y1)
+                bss = bs(y1,note=note)
                 names.append(bss.name)
                 ps.append(bss.string)
             except Exception as e:
@@ -126,7 +134,9 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
                 f.write(bnames)
                 f.close()
         ps = '\n'.join(ps)
-        pst(ps,channel='C05E9AJ18HG')
+        pst(ps,
+            # channel='C05E9AJ18HG'
+            )
 
     return 0
 

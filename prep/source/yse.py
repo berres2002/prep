@@ -14,7 +14,7 @@ import re
 # from tns_search_download_csv import search_tns
 from astro_ghost.ghostHelperFunctions import getTransientHosts
 import tempfile
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord,Angle
 
 # today = Time.now()
 
@@ -161,7 +161,41 @@ class yse_object:
         else:
             self.ra = r1[0]['ra']
             self.dec = r1[0]['dec']
+            self.LikelyYSEField()
             return r1!=[]
+
+    def LikelyYSEField(self):
+        '''
+        Determines if object is likely in a YSE field. If so, generates attributes for YSE field ID.
+        Based on https://github.com/davecoulter/YSE_PZ/blob/master/YSE_App/models/transient_models.py#L97
+
+        Returns
+        -------
+        fields : list
+            List of YSE field IDs that object is likely in
+        '''
+        in_field = False
+        d = self.dec*np.pi/180
+        width_corr = 3.4/np.abs(np.cos(d))
+            # Define the tile offsets:
+        ra_offset = Angle(width_corr/2., unit='deg')
+        dec_offset = Angle(3.4/2., unit='deg')
+        params = {'obs_group':'ZTF',
+                'ra_cen__gt': self.ra-ra_offset.degree,
+                'ra_cen__lt': self.ra+ra_offset.degree,
+                'dec_cen__gt': self.dec-dec_offset.degree,
+                'dec_cen__lt': self.dec+dec_offset.degree}
+        # r1 = req.get('https://ziggy.ucolick.org/yse/api/surveyfields/',params=params,auth=HTTPBasicAuth(login, password)).json()
+        r1 = req.get('https://ziggy.ucolick.org/yse/api/surveyfieldmsbs/?active=1',auth=HTTPBasicAuth(login, password)).json()
+        fields =[]
+        for res in r1['results']:
+            for field in res['survey_fields']:
+                if params['ra_cen__gt'] < field['ra_cen'] < params['ra_cen__lt'] and params['dec_cen__gt'] < field['dec_cen'] < params['dec_cen__lt']:
+                    in_field = True
+                    fields.append(field['field_id'])
+        self.fields = fields
+        self.in_field = in_field
+        return fields
     
     def _gen_YSE_PZ_url(self):
         # if self.ebool == None:

@@ -4,7 +4,7 @@ import requests as req
 from .auth import toku
 
 class build_rec:
-    def __init__(self, obj):
+    def __init__(self, obj, note=None):
         '''
         Builds a string and dataframe row for easy recommendation posting. Also can post to slack.
 
@@ -12,6 +12,8 @@ class build_rec:
         ----------
         obj : prep.source object
             Object to build recommendation for. Needs to have a name, ra, dec, url, and salt_params attributes.
+        note : str, optional
+            Note to add to the end of the string. Default is None.
         
         Attributes
         ----------
@@ -26,6 +28,10 @@ class build_rec:
         self.ra = obj.ra
         self.dec = obj.dec
         self.url = obj.url
+        if note is None:
+            self.note = ''
+        else:
+            self.note = note
         self.string = self.build_str()
         self.df = self.build_df()
 
@@ -38,7 +44,7 @@ class build_rec:
             t = '%i'%t
         x1 = self.salt_params['x1']
         c = self.salt_params['c']
-        return f'<{self.obj.url}|{self.name}> z = {z:.3f}, t = {t}, x1 = {x1:.1f}, c = {c:.2f}, ra, dec = {self.ra:.3f}, {self.dec:.3f}; Found using automation'
+        return f'<{self.obj.url}|{self.name}> z = {z:.3f}, t = {t}, x1 = {x1:.1f}, c = {c:.2f}, ra, dec = {self.ra:.3f}, {self.dec:.3f}; {self.note}'
     
     def build_df(self):
         df1=pd.DataFrame()
@@ -47,6 +53,7 @@ class build_rec:
         k1 = list(k1)
         df1[k1]=list(self.salt_params.values())
         df1['url'] = self.url
+        df1['note'] = self.note
         return df1
     
     def post(self,string=None,channel='D03BK3YKUQN'):
