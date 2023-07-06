@@ -3,30 +3,42 @@ from astropy.time import Time
 import tempfile
 import os
 import glob
+import sqlite3
 from prep.build_rec import post as pst
 from prep.build_rec import build_rec as bs
 import time
 
-def check_post(name,lines):
-    if lines is None:
+def check_post(name,cur):
+    if cur == None:
         return False
-    
-    if name in lines:
+    if cur.execute(f'SELECT * FROM posted_names WHERE name LIKE "{name}"').fetchone() != None:
         print(f'{name} already posted!')
         return True
     else:
         return False
+    
+
+    # if lines is None:
+    #     return False
+    
+    # if name in lines:
+    #     print(f'{name} already posted!')
+    #     return True
+    # else:
+    #     return False
 
 
-def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names.txt'):
+def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names_test.db'):
     if os.path.exists(name_file):
         print(f'using existing posted names file: {name_file}') # checking if the names file exists, if it doesn't, will not check for duplicates and will not write new names to the file
-        with open(name_file,'r') as f:
-            lines = f.read().split('\n')
-            f.close()
+        # with open(name_file,'r') as f:
+        #     lines = f.read().split('\n')
+        #     f.close()
+        conn = sqlite3.connect(name_file)
+        cur = conn.cursor()
     else:
         print(f'WARNING: posted names file not found, will not check for duplicates')
-        lines = None
+        cur = None
     ps= []
     names = []
     if 'alerce' in sources:
@@ -34,7 +46,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
         for i in range(aq['oid'].values.size):
             try:
                 ao=alerce_api.alerce_object(aq.iloc[i])
-                if check_post(ao.name,lines):
+                if check_post(ao.name,cur):
                     continue
                 ao.get_lc()
                 ao.salt3()
@@ -63,7 +75,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
             try:
                 ao=antares.antares_object(locus)
                 # print(ao.name)
-                if check_post(ao.name,lines):
+                if check_post(ao.name,cur):
                     continue
                 ao.get_lc()
                 ao.salt3()
@@ -90,7 +102,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
                     note = f'Found in YSE fields: {", ".join(y1.fields)}'
                 else:
                     note = None
-                if check_post(y1.name,lines):
+                if check_post(y1.name,cur):
                     continue
                 y1.get_lc()
                 y1.salt3()
@@ -114,7 +126,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
                     note = f'Found in YSE fields: {", ".join(y1.fields)}'
                 else:
                     note =None
-                if check_post(y1.name,lines):
+                if check_post(y1.name,cur):
                     continue
                 y1.get_lc()
                 y1.salt3()
@@ -126,13 +138,16 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
                 continue
 
     if post:
-        if lines is None: # if the file doesn't exist, don't write to it
+        if cur is None: # if the file doesn't exist, don't write to it
             pass
         else:
-            bnames = '\n'.join(names)
-            with open(name_file,'a') as f:
-                f.write(bnames)
-                f.close()
+            cur.executemany('INSERT INTO posted_names VALUES (?)',[(n,) for n in names])
+            # bnames = '\n'.join(names)
+            # with open(name_file,'a') as f:
+            #     f.write(bnames)
+            #     f.close()
+            conn.commit()
+            conn.close()
         ps = '\n'.join(ps)
         pst(ps,
             # channel='C05E9AJ18HG'
