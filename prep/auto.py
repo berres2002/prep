@@ -28,7 +28,21 @@ def check_post(name,cur):
     #     return False
 
 
-def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names_test.db'):
+def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',name_file='posted_names_test.db'):
+    '''
+    Runs the auto posting script. Will query the specified sources, do a salt fit, and post them to slack.
+
+    Parameters
+    ----------
+    sources : list, optional
+        List of sources to query. Default is ['antares','alerce','yse_yaf']. Which correspond to ANTARES, ALeRCE, and YSE "young and fast" query.
+    post : bool, optional
+        Whether or not to post to slack and save names to avoid posting duplicates. Default is True.
+    channel : str, optional
+        Slack channel ID to post to. Please set the default if using frequently. Current default is for testing.
+    name_file : str, optional
+        Name of the file to save posted names to. Default is 'posted_names_test.db'. Uses a sqlite3 database with a single table called 'posted_names' with a single column called 'name'.
+    '''
     if os.path.exists(name_file):
         print(f'using existing posted names file: {name_file}') # checking if the names file exists, if it doesn't, will not check for duplicates and will not write new names to the file
         # with open(name_file,'r') as f:
@@ -151,6 +165,8 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,name_file='posted_names
         ps = '\n'.join(ps)
         pst(ps,
             # channel='C05E9AJ18HG'
+            # mander astroslackers
+            channel=channel
             )
 
     return 0
