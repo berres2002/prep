@@ -113,7 +113,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
             try:
                 y1=yse.yse_object(name)
                 if y1.in_field:
-                    note = f'Found in YSE fields: {", ".join(y1.fields)}'
+                    note = f'Found in active YSE fields: {", ".join(y1.fields)}'
                 else:
                     note = None
                 if check_post(y1.name,cur):
@@ -137,7 +137,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
             try:
                 y1=yse.yse_object(name)
                 if y1.in_field:
-                    note = f'Found in YSE fields: {", ".join(y1.fields)}'
+                    note = f'Found in active YSE fields: {", ".join(y1.fields)}'
                 else:
                     note =None
                 if check_post(y1.name,cur):
@@ -164,9 +164,9 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
             conn.close()
         ps = '\n'.join(ps)
         pst(ps,
-            # channel='C05E9AJ18HG'
+            channel='C05E9AJ18HG'
             # mander astroslackers
-            channel=channel
+            # channel=channel
             )
 
     return 0
