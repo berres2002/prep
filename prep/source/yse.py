@@ -161,6 +161,7 @@ class yse_object:
         else:
             self.ra = r1[0]['ra']
             self.dec = r1[0]['dec']
+            self.tags = r1[0]['tags']
             self.LikelyYSEField()
             return r1!=[]
 

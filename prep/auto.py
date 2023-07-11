@@ -28,7 +28,7 @@ def check_post(name,cur):
     #     return False
 
 
-def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',name_file='posted_names_test.db'):
+def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',name_file=None):
     '''
     Runs the auto posting script. Will query the specified sources, do a salt fit, and post them to slack.
 
@@ -100,7 +100,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
                 print(f'failed on {locus.properties["ztf_object_id"]}'+'\n'+str(e))
                 
             j+=1
-    
+    hst_tag_url = 'https://ziggy.ucolick.org/yse/api/transienttags/100/'
     if 'yse_yaf' in sources:
         # maybe introduce temp file to save csv
         with tempfile.TemporaryDirectory() as td:
@@ -116,6 +116,8 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
                     note = f'Found in active YSE fields: {", ".join(y1.fields)}'
                 else:
                     note = None
+                if hst_tag_url in y1.tags:
+                    print(f'{y1.name} already triggered!')
                 if check_post(y1.name,cur):
                     continue
                 y1.get_lc()
@@ -140,6 +142,8 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
                     note = f'Found in active YSE fields: {", ".join(y1.fields)}'
                 else:
                     note =None
+                if hst_tag_url in y1.tags:
+                    print(f'{y1.name} already triggered!')
                 if check_post(y1.name,cur):
                     continue
                 y1.get_lc()
