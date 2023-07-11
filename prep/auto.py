@@ -118,6 +118,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
                     note = None
                 if hst_tag_url in y1.tags:
                     print(f'{y1.name} already triggered!')
+                    continue
                 if check_post(y1.name,cur):
                     continue
                 y1.get_lc()
@@ -144,6 +145,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
                     note =None
                 if hst_tag_url in y1.tags:
                     print(f'{y1.name} already triggered!')
+                    continue
                 if check_post(y1.name,cur):
                     continue
                 y1.get_lc()
