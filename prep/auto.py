@@ -28,7 +28,7 @@ def check_post(name,cur):
     #     return False
 
 
-def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',name_file=None):
+def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',name_file=None, check_trigger =True):
     '''
     Runs the auto posting script. Will query the specified sources, do a salt fit, and post them to slack.
 
@@ -42,8 +42,10 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
         Slack channel ID to post to. Please set the default if using frequently. Current default is for testing.
     name_file : str, optional
         Name of the file to save posted names to. Default is 'posted_names_test.db'. Uses a sqlite3 database with a single table called 'posted_names' with a single column called 'name'.
+    check_trigger : bool, optional
+        For HST Dust Program and YSE objects, checks if the object has already been triggered using HST Dust tag on YSE-PZ. Default is True.
     '''
-    if os.path.exists(name_file):
+    if name_file != None and os.path.exists(name_file):
         print(f'using existing posted names file: {name_file}') # checking if the names file exists, if it doesn't, will not check for duplicates and will not write new names to the file
         # with open(name_file,'r') as f:
         #     lines = f.read().split('\n')
@@ -116,7 +118,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
                     note = f'Found in active YSE fields: {", ".join(y1.fields)}'
                 else:
                     note = None
-                if hst_tag_url in y1.tags:
+                if hst_tag_url in y1.tags and check_trigger:
                     print(f'{y1.name} already triggered!')
                     continue
                 if check_post(y1.name,cur):
@@ -143,7 +145,7 @@ def run(sources=['antares','alerce','yse_yaf'],post=True,channel='D03BK3YKUQN',n
                     note = f'Found in active YSE fields: {", ".join(y1.fields)}'
                 else:
                     note =None
-                if hst_tag_url in y1.tags:
+                if hst_tag_url in y1.tags and check_trigger:
                     print(f'{y1.name} already triggered!')
                     continue
                 if check_post(y1.name,cur):
